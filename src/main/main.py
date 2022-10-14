@@ -41,7 +41,7 @@ class Graphic:
         serial_port : str
             The serial port through which it communicates with the arduino uno (default 'COM1')
         speed : int
-            The spped through which it comunicates with the  arduino uno (default 9600)
+            The speed through which it comunicates with the  arduino uno (default 9600)
         """
         self.max_data_x = max_data_x
         self.max_data_y = max_data_y
