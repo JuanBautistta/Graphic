@@ -4,7 +4,7 @@ import matplotlib
 import threading
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-from tkinter import ttk
+from tkinter import NSEW, ttk
 matplotlib.use('TkAgg')
 #from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import (
@@ -35,41 +35,58 @@ class MainFrame(ttk.Frame):
         self.pack(fill='both', expand=1)
     
     def add_widgets(self):
-        #s2 = ttk.Style()
-        #s2.configure('My2.TFrame', background='blue')
-        #side_bar.configure(style = 'My2.TFrame')
+        s_bar = ttk.Style()
+        s_bar.configure('MyBar.TFrame', background='orange')
         side_bar = SideBar(self)
-        side_bar.grid(column=0, row = 0)
+        side_bar.configure(style = 'MyBar.TFrame')
+        side_bar.grid(column=0, row = 0, sticky= tk.NSEW)
+
+        s_graphic = ttk.Style()
+        s_graphic.configure('MyGraphic.TFrame', background='purple')
         graphics = Graphics(self)
-        graphics.grid(column=1, row = 0)
+        graphics.configure(style='MyGraphic.TFrame')
+        graphics.grid(column=1, row = 0, sticky=tk.NS)
 
 class SideBar(ttk.Frame):
     def __init__(self, container):
         super().__init__(container)
-        #s3 = ttk.Style()
-        #s3.configure('My3.TFrame', background='blue')
-        #title.configure(style = 'My3.TFrame')
         self.columnconfigure(0, weight=1)
+
+        s_title = ttk.Style()
+        s_title.configure('MyTitle.TFrame', background='red')
         title = TitleFrame(self, "Sensors")
-        title.grid(column=0, row=0)
+        title.configure(style = 'MyTitle.TFrame')
+        title.grid(column=0, row=0, sticky=tk.NSEW, padx=10, pady=10)
+
+        s_checks = ttk.Style()
+        s_checks.configure('MiChecks.TFrame', background='green')
         checks = ListChecksFrame(container=self)
-        checks.grid(column=0, row=1)
+        checks.configure(style='MiChecks.TFrame')
+        checks.grid(column=0, row=1, sticky=tk.NSEW, padx=10, pady=10)
         #self.pack(fill='both', expand=1)
 
 class Graphics(ttk.Frame):
 
     def __init__(self, container):
         super().__init__(container)
+        s_title = ttk.Style()
+        s_title.configure('MyTitle.TFrame', background='red')
         title = TitleFrame(self, "Plots in real time")
-        title.grid(column=0, row=0)
+        title.configure(style='MyTitle.TFrame')
+        title.grid(column=0, row=0, sticky=tk.NSEW, padx=10, pady=10)
+
+        s_graphics = ttk.Style()
+        s_graphics.configure('MiGraphics.TFrame', background='green')
         plots = ListPlotsFrame(self)
-        plots.grid(column=0, row=1)
+        plots.configure(style='MiGraphics.TFrame')
+        plots.grid(column=0, row=1, sticky=tk.NS, padx=5, pady=5)
 
 class TitleFrame(ttk.Frame):
     def __init__(self, container, title_frame="Title"):
         super().__init__(container)
         title = ttk.Label(self, text = title_frame)
-        title.pack(fill='both', expand=1)
+        title.pack()
+        #title.pack(fill='both', expand=1)
 
 
 class ListChecksFrame(ttk.Frame):
@@ -77,7 +94,7 @@ class ListChecksFrame(ttk.Frame):
         super().__init__(container)
         for name in list:
             button = ttk.Checkbutton(self, text=name)
-            button.pack(fill='both', expand=1)
+            button.pack(fill='both', expand=1, padx=2, pady=2)
 
 #OK
 class ListPlotsFrame(ttk.Frame):
@@ -96,34 +113,35 @@ class ListPlotsFrame(ttk.Frame):
         self.thread_input_data = threading.Thread(target=self.get_data, args=())
         self.thread_input_data.start() #correrlo como si fuera un demonio -> investigar
 
-        #plt.style.use('fivethirtyeight')
-        #s = ttk.Style()
-        #s.configure('My.TFrame', background='red')
-        #self.configure(style='My.TFrame')
-        
         #create a figure
-        #figure = plt.Figure(figsize=(8,4), dpi=100)
-        
+        figure = plt.Figure(figsize=(6,8), dpi=100)
         #create FigureCanvas TkAgg object
         figure_canvas = FigureCanvasTkAgg(figure, self)
         #create toolbar
         NavigationToolbar2Tk(figure_canvas, self)
         #create axes
-        axes = figure.add_subplot(len(names), 1)
-        #axes = plt.gcf().get_axes()
-        #axes.set_title("Plot #1")
+        #axes = figure.add_subplot()
+        #axes.set_title("Plot x")
         #axes.set_xlabel("Time")
         #axes.set_ylabel("Value")
         #axes.set_xlim(0, 100)
         #axes.set_ylim(900, 1000)
+
+        for i in range(len(names)):
+            axes = figure.add_subplot(len(names), 1, (i+1))
+        #    #axes = plt.gcf().get_axes()
+            axes.set_title("Plot " + str(names[i]))
+            axes.set_xlabel("Time")
+            axes.set_ylabel("Value")
+            axes.set_xlim(0, 100)
+            axes.set_ylim(900, 1000)
 
         #canvas = FigureCanvasTkAgg(figure, master=self) # A tk drawing area
         #canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
         #canvas.draw()
 
         figure_canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
-        figure.subplots(1,1)
-        ani = animation.FuncAnimation(figure, self.animate, interval=100, blit=False)
+        ani = animation.FuncAnimation(figure, self.animate, fargs=(figure), interval=100, blit=False)
         ani
         plt.show()
         self.thread_input_data.join()
@@ -151,13 +169,13 @@ class ListPlotsFrame(ttk.Frame):
 
 if __name__ == "__main__":
 
-    app = App()                                  #create the main window
-    main_frame = MainFrame(app)                  #creating the main_frame over the main window
-    s = ttk.Style()                              #create new style
+    app = App()                                       #create the main window
+    main_frame = MainFrame(app)                       #creating the main_frame over the main window
+    s = ttk.Style()                                   #create new style
     s.configure('My.TFrame', background='light blue') #configure new style
-    main_frame.configure(style = 'My.TFrame')    #apply style
-    main_frame.config()                        #lock
-    app.mainloop()                               # execute
+    main_frame.configure(style = 'My.TFrame')         #apply style
+    main_frame.config()                               #lock
+    app.mainloop()                                    # execute
     
     #app = App()
     #title_frame = TitleFrame(container=app, title_frame="Hola")
