@@ -23,14 +23,18 @@ y_vals2 = np.arange(100).tolist()
 # figure
 
 fig = Figure()
-ax = fig.add_subplot(211)
+
+gs = fig.add_gridspec(2, 1, hspace=0.5, wspace=2)
+ax, ax2 = gs.subplots()
+
+#ax = fig.add_subplot(211)
 ax.set_title('Plots')
 ax.set_xlabel('Time')
 ax.set_ylabel('Data')
 ax.set_xlim(0, 100)
 ax.set_ylim(900, 1000)
 
-ax2 = fig.add_subplot(212)
+#ax2 = fig.add_subplot(212)
 ax2.set_title('Plots')
 ax2.set_xlabel('Time')
 ax2.set_ylabel('Data')
@@ -142,7 +146,7 @@ title_graphics.pack(padx=10, pady=10)
 
 #plots frame
 plots_frame = ttk.Frame(graphics_frame)
-plots_frame.pack(padx=10, pady=10, fill=tk.BOTH, expand=1)
+plots_frame.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
 
 ################## ANIMATION ###################
 
@@ -150,7 +154,7 @@ thread_input_data = threading.Thread(target=get_data, args=())
 thread_input_data.start()
 
 canvas = FigureCanvasTkAgg(fig, master=plots_frame)
-canvas.get_tk_widget().pack(fill=tk.BOTH, expand=1)
+canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 #fig.subplots(2,1)
 
 ani = FuncAnimation(fig, animate, interval=100, blit=False)
