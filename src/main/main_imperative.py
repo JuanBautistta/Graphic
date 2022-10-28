@@ -1,7 +1,7 @@
 from random import randint
 from time import sleep
 import tkinter as tk
-from tkinter import NSEW, ttk
+from tkinter import ttk
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import numpy as np
