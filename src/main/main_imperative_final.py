@@ -19,7 +19,7 @@ plots_dict = {
 }
 
 fig  = Figure()
-gs   = fig.add_gridspec(len(plots_dict), 1, hspace=0.5)
+gs   = fig.add_gridspec(len(plots_dict), 1, hspace=1, wspace=2)
 axes = gs.subplots()
 
 # FUNCTIONS
@@ -34,10 +34,12 @@ def get_data():
             name = line_list[0] 
             value = line_list[1]
             for n in list(plots_dict.keys()):
+                n = str(n)
                 if n == name:
-                    plots_dict[n] = plots_dict[n].append(float(value))
-                    if len(plots_dict[n]) > 100:
-                        plots_dict[n].pop(0)
+                    lista = plots_dict[name]
+                    lista.append(float(value))
+                    if len(lista) > 100:
+                        lista.pop(0)
         except:
             pass
 
@@ -49,7 +51,7 @@ def animate(i):
         current_axe.set_title('Plot' + str(i))
         current_axe.set_xlabel('Time')
         current_axe.set_ylabel('Value')
-        current_axe.plot(np.arange(100).tolist(), plots_dict.values()[i])
+        current_axe.plot(np.arange(100).tolist(), list(plots_dict.values())[i])
 
 # GUI
 
@@ -83,13 +85,13 @@ plots_frame.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
 
 # ANIMATION
 
-#thread_input_data = threading.Thread(target=get_data, args=())
-#thread_input_data.start()
+thread_input_data = threading.Thread(target=get_data, args=())
+thread_input_data.start()
 
-#canvas = FigureCanvasTkAgg(fig, master=plots_frame)
-#canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+canvas = FigureCanvasTkAgg(fig, master=plots_frame)
+canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
-#ani = FuncAnimation(fig, animate, interval=100, blit=False)
+ani = FuncAnimation(fig, animate, interval=100, blit=False)
 
 root.mainloop()
-#thread_input_data.join()
+thread_input_data.join()
