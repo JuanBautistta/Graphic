@@ -30,14 +30,14 @@ void setup() {
 void loop()
 {
     value1=analogRead(ldr); //Reads the value of LDR(light).
-    String result1 = "plot1 " + String(value1);
+    String result1 = "plot0 " + String(value1);
     Serial.println(result1); //Print the read value 
 
     value2 = rand() % 100;
-    String result2 = "plot2 " + String(value2);
+    String result2 = "plot1 " + String(value2);
     Serial.println(result2);
 
     value3 = rand() % 50;
-    String result3 = "plot3 " + String(value3);
+    String result3 = "plot2 " + String(value3);
     Serial.println(result3);
 }

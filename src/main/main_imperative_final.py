@@ -1,7 +1,7 @@
 from random import randint
 from time import sleep
 import tkinter as tk
-from tkinter import ttk
+from tkinter import IntVar, ttk
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import numpy as np
@@ -12,10 +12,18 @@ import threading
 
 # GLOBAL VARIABLES
 
+lock = threading.Lock()
+
+plots_checked = {
+    'plot0' : 1,
+    'plot1' : 1,
+    'plot2' : 1
+}
+
 plots_dict = {
+    'plot0' : np.arange(100).tolist(),
     'plot1' : np.arange(100).tolist(),
-    'plot2' : np.arange(100).tolist(),
-    'plot3' : np.arange(100).tolist()
+    'plot2' : np.arange(100).tolist()
 }
 
 fig  = Figure()
@@ -53,6 +61,19 @@ def animate(i):
         current_axe.set_ylabel('Value')
         current_axe.plot(np.arange(100).tolist(), list(plots_dict.values())[i])
 
+def uptade_plots(flag, key):
+    global plots_dict, gs, axes
+    if flag:
+        fig.clf()
+        plots_dict.update({key : np.arange(100).tolist()})
+        gs   = fig.add_gridspec(len(plots_dict), 1, hspace=1, wspace=2)
+        axes = gs.subplots()
+    else:
+        fig.clf()
+        plots_dict.pop(key)
+        gs   = fig.add_gridspec(len(plots_dict), 1, hspace=1, wspace=2)
+        axes = gs.subplots()
+
 # GUI
 
 root = tk.Tk()
@@ -71,7 +92,7 @@ title_side_bar = ttk.Label(side_bar_frame, text='Sensors')
 title_side_bar.pack(padx=10, pady=10)
 
 for i in range(len(plots_dict)):
-    current_plot = ttk.Checkbutton(side_bar_frame, text=list(plots_dict.keys())[i])
+    current_plot = ttk.Checkbutton(side_bar_frame, text=list(plots_dict.keys())[i], command=lambda:uptade_plots(False,list(plots_dict.keys())[i]), variable=plots_checked[list(plots_dict.keys())[i]])
     current_plot.pack(fill=tk.X, padx=10)
 
 graphics_frame = ttk.Frame(main_frame)
