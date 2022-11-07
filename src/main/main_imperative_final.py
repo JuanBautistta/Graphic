@@ -14,12 +14,6 @@ import threading
 
 lock = threading.Lock()
 
-plots_checked = {
-    'plot0' : 1,
-    'plot1' : 1,
-    'plot2' : 1
-}
-
 plots_dict = {
     'plot0' : np.arange(100).tolist(),
     'plot1' : np.arange(100).tolist(),
@@ -27,7 +21,7 @@ plots_dict = {
 }
 
 fig  = Figure()
-gs   = fig.add_gridspec(len(plots_dict), 1, hspace=1, wspace=2)
+gs   = fig.add_gridspec(len(plots_dict), hspace=1, wspace=2)
 axes = gs.subplots()
 
 # FUNCTIONS
@@ -52,17 +46,48 @@ def get_data():
             pass
 
 def animate(i):
-    global plots_dict
-    for i in range(len(plots_dict)):
-        current_axe = axes[i]
+    lock.acquire()
+    global plots_dict, axes
+    if len == 0:
+        current_axe = axes
         current_axe.cla()
-        current_axe.set_title('Plot' + str(i))
+    elif len(plots_dict) == 1:
+        current_axe = axes
+        current_axe.cla()
+        current_axe.set_title('Plot1')
         current_axe.set_xlabel('Time')
         current_axe.set_ylabel('Value')
-        current_axe.plot(np.arange(100).tolist(), list(plots_dict.values())[i])
+        current_axe.plot(np.arange(100).tolist(), list(plots_dict.values())[0])
+    else:
+        for i in range(len(plots_dict)):
+            current_axe = axes[i]
+            current_axe.cla()
+            current_axe.set_title('Plot' + str(i))
+            current_axe.set_xlabel('Time')
+            current_axe.set_ylabel('Value')
+            current_axe.plot(np.arange(100).tolist(), list(plots_dict.values())[i])
+    lock.release()
 
-def uptade_plots(flag, key):
-    global plots_dict, gs, axes
+def uptade_plots():
+    lock.acquire()
+    global plots_dict, gs, axes, plots_checked,fig
+    for p in plots_checked:
+        print(plots_dict)
+        print(p, plots_checked[p].get())
+        if plots_checked[p].get() == 0 and p in plots_dict:
+            fig.clf()
+            plots_dict.pop(p)
+            if len(plots_dict) > 0:
+                gs   = fig.add_gridspec(len(plots_dict), hspace=1, wspace=2)
+                axes = gs.subplots()
+
+        if plots_checked[p].get() == 1 and not(p in plots_dict):
+            fig.clf()
+            plots_dict.update({p : np.arange(100).tolist()})
+            gs   = fig.add_gridspec(len(plots_dict), hspace=1, wspace=2)
+            axes = gs.subplots()
+    lock.release()
+    '''
     if flag:
         fig.clf()
         plots_dict.update({key : np.arange(100).tolist()})
@@ -73,6 +98,7 @@ def uptade_plots(flag, key):
         plots_dict.pop(key)
         gs   = fig.add_gridspec(len(plots_dict), 1, hspace=1, wspace=2)
         axes = gs.subplots()
+    '''
 
 # GUI
 
@@ -91,9 +117,20 @@ side_bar_frame.grid(column=0, row=0, sticky=tk.NSEW, padx=10, pady=10)
 title_side_bar = ttk.Label(side_bar_frame, text='Sensors')
 title_side_bar.pack(padx=10, pady=10)
 
-for i in range(len(plots_dict)):
-    current_plot = ttk.Checkbutton(side_bar_frame, text=list(plots_dict.keys())[i], command=lambda:uptade_plots(False,list(plots_dict.keys())[i]), variable=plots_checked[list(plots_dict.keys())[i]])
-    current_plot.pack(fill=tk.X, padx=10)
+plots_checked = {
+    'plot0' : IntVar(value=1),
+    'plot1' : IntVar(value=1),
+    'plot2' : IntVar(value=1)
+}
+
+for p in plots_checked:
+    plots_checked[p] = IntVar(value=1)
+    l = ttk.Checkbutton(side_bar_frame, text=p, variable=plots_checked[p], command=uptade_plots)
+    l.pack(fill=tk.X, padx=10)
+
+#for i in range(len(plots_checked)):
+#    current_plot = ttk.Checkbutton(side_bar_frame, text=list(plots_checked.keys())[i], command=lambda:uptade_plots(False,list(plots_checked.keys())[i]), variable=plots_checked[list(plots_checked.keys())[i]])
+#    current_plot.pack(fill=tk.X, padx=10)
 
 graphics_frame = ttk.Frame(main_frame)
 graphics_frame.grid(column=1, row=0, sticky=tk.NSEW, padx=10, pady=10)
