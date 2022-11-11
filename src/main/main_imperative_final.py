@@ -87,18 +87,6 @@ def uptade_plots():
             gs   = fig.add_gridspec(len(plots_dict), hspace=1, wspace=2)
             axes = gs.subplots()
     lock.release()
-    '''
-    if flag:
-        fig.clf()
-        plots_dict.update({key : np.arange(100).tolist()})
-        gs   = fig.add_gridspec(len(plots_dict), 1, hspace=1, wspace=2)
-        axes = gs.subplots()
-    else:
-        fig.clf()
-        plots_dict.pop(key)
-        gs   = fig.add_gridspec(len(plots_dict), 1, hspace=1, wspace=2)
-        axes = gs.subplots()
-    '''
 
 # GUI
 
@@ -127,10 +115,6 @@ for p in plots_checked:
     plots_checked[p] = IntVar(value=1)
     l = ttk.Checkbutton(side_bar_frame, text=p, variable=plots_checked[p], command=uptade_plots)
     l.pack(fill=tk.X, padx=10)
-
-#for i in range(len(plots_checked)):
-#    current_plot = ttk.Checkbutton(side_bar_frame, text=list(plots_checked.keys())[i], command=lambda:uptade_plots(False,list(plots_checked.keys())[i]), variable=plots_checked[list(plots_checked.keys())[i]])
-#    current_plot.pack(fill=tk.X, padx=10)
 
 graphics_frame = ttk.Frame(main_frame)
 graphics_frame.grid(column=1, row=0, sticky=tk.NSEW, padx=10, pady=10)
