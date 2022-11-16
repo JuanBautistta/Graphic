@@ -177,7 +177,3 @@ if __name__ == "__main__":
     main_frame.config()                               #lock
     app.mainloop()                                    # execute
     
-    #app = App()
-    #title_frame = TitleFrame(container=app, title_frame="Hola")
-    #title_frame.pack()
-    #app.mainloop()
