@@ -76,7 +76,7 @@ class App:
         root = tk.Tk()
         root.title("Monitoreo de sensores")
         root.geometry(("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight())))
-        root.iconbitmap(os.path.abspath('../../images/linux96.ico'))
+        root.iconbitmap(os.path.abspath('../../icos/linux96.ico'))
 
         main_frame = ttk.Frame(root)
         main_frame.columnconfigure(0, weight=1)
