@@ -1,7 +1,7 @@
 from random import randint
 from time import sleep
 import tkinter as tk
-from tkinter import IntVar, ttk
+from tkinter import IntVar, ttk, messagebox
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import numpy as np
@@ -20,11 +20,14 @@ class App:
         self.axes = self.gs.subplots()
         self.port = port
         self.speed = speed
+        self.stop = False
 
     def get_data(self):
         connection = serial.Serial(self.port, self.speed)
         while True:
             try:
+                if(self.stop):
+                    break
                 line = connection.readline().decode('utf-8')
                 line_list = line.split()
                 name = line_list[0]
@@ -73,12 +76,12 @@ class App:
 
     def create_gui(self):
         
-        root = tk.Tk()
-        root.title("Monitoreo de sensores")
-        root.geometry(("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight())))
-        root.iconbitmap(os.path.abspath('../../icos/linux96.ico'))
+        self.root = tk.Tk()
+        self.root.title("Monitoreo de sensores")
+        self.root.geometry(("{0}x{1}+0+0".format(self.root.winfo_screenwidth(), self.root.winfo_screenheight())))
+        self.root.iconbitmap(os.path.abspath('../../icos/linux96.ico'))
 
-        main_frame = ttk.Frame(root)
+        main_frame = ttk.Frame(self.root)
         main_frame.columnconfigure(0, weight=1)
         main_frame.columnconfigure(1, weight=4)
         main_frame.pack(fill='both', expand=1, padx=10, pady=10)
@@ -121,9 +124,14 @@ class App:
         ani = FuncAnimation(self.fig, self.animate, interval=100, blit=False)
         ani
 
-        root.mainloop()
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+        self.root.mainloop()
         thread_input_data.join()
 
+    def on_closing(self):
+        if messagebox.askokcancel("Quit","Do you want to quit?"):
+            self.stop = True
+            self.root.destroy()
 
 if __name__ == "__main__":
     p_d = {
