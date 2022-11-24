@@ -12,8 +12,50 @@ import threading
 import os
 
 class App:
+    """
+    Class used to graphic data in real time from a multiple sensor.
 
-    def __init__(self, plots_dict: dict, port: str, speed: int) -> None:
+    Attributes
+    ----------
+    plots_dict : dict
+        A dictionary with the name of the sensors as a key and whose value is its first 100 values obtained, 
+        these values can in principle be pure zeros.
+    port : str
+        The serial port through which it communicates with the arduino uno (default 'COM1')
+    speed : int
+        The spped through which it comunicates with the  arduino uno (default 9600)
+    
+    Methods
+    -------
+    get_data ()
+        Method that updates the data from the sensor.
+    animate ()
+        Method that performs the update of the information of the graph.
+    update_plots()
+        Method that removes or adds graphs to the graphical interface depending on the graphs 
+        selected in the graphical interface.
+    create_gui()
+        Method responsible for creating the graphical interface, as well as initializing all the necessary 
+        programs in the background so that the user can interact with it.
+    on_closing()
+        Method responsible for properly ending the application, 
+        closing all background applications that are running.
+    """
+
+    def __init__(self, plots_dict: dict, port: str = "COM3", speed: int = 9600) -> None:
+        """
+        constructor method
+
+        Parameters
+        ----------
+        plots_dict : int
+            A dictionary with the name of the sensors as a key and whose value is its first 100 values obtained, 
+            these values can in principle be pure zeros.
+        port : str
+            The serial port through which it communicates with the arduino uno (default 'COM1')
+        speed : int
+            The spped through which it comunicates with the  arduino uno (default 9600)
+        """
         self.plots_dict = plots_dict
         self.fig = Figure()
         self.gs = self.fig.add_gridspec(len(self.plots_dict), hspace=1, wspace=2)
@@ -21,8 +63,12 @@ class App:
         self.port = port
         self.speed = speed
         self.stop = False
+        self.root = tk.Tk()
 
     def get_data(self):
+        """
+        Method that gets the new data from the sensors.
+        """
         connection = serial.Serial(self.port, self.speed)
         while True:
             try:
@@ -43,6 +89,9 @@ class App:
                 pass
     
     def animate(self, i):
+        """
+        function that updates the graphs so that they are seen in real time
+        """
         if len(self.plots_dict) == 1:
             current_axe = self.axes
             current_axe.cla()
@@ -60,6 +109,9 @@ class App:
                 current_axe.plot(np.arange(100).tolist(), list(self.plots_dict.values())[i])
 
     def update_plots(self):
+        """
+        function that adds or removes graphics from the graphical interface.
+        """
         for p in self.plots_checked:
             if self.plots_checked[p].get() == 0 and p in self.plots_dict:
                 self.fig.clf()
@@ -75,8 +127,9 @@ class App:
                 self.axes = self.gs.subplots()
 
     def create_gui(self):
-        
-        self.root = tk.Tk()
+        """
+        function to create the graphical interface
+        """
         self.root.title("Monitoreo de sensores")
         self.root.geometry(("{0}x{1}+0+0".format(self.root.winfo_screenwidth(), self.root.winfo_screenheight())))
         self.root.iconbitmap(os.path.abspath('../../icos/linux96.ico'))
@@ -134,6 +187,9 @@ class App:
             self.root.destroy()
 
 if __name__ == "__main__":
+    """
+    Main method from which the application is executed
+    """
     p_d = {
         'plot0' : np.arange(100).tolist(),
         'plot1' : np.arange(100).tolist(),
